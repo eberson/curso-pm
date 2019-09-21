@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">volante</string>
+
+    <string name="msg_dont_cheat">Segura o brinquedo na posição correta, né amigão!</string>
+    <string name="btn_sorry">Ok, desculpe!</string>
+    <string name="msg_i_will_see_you">Estou de olho!</string>
 </resources>

@@ -1,5 +1,6 @@
 package br.com.etecmatao.volante
 
+import android.bluetooth.BluetoothAdapter
 import android.content.Context
 import android.graphics.Color
 import android.hardware.Sensor
@@ -8,9 +9,18 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import kotlin.math.abs
+import android.util.Log
+import android.bluetooth.BluetoothDevice
+import android.content.IntentFilter
+import android.content.Intent
+
+
+
+
 
 class RotationVectorSensorActivity : AppCompatActivity() {
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -19,12 +29,35 @@ class RotationVectorSensorActivity : AppCompatActivity() {
         val manager:SensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
 
         setUpRotationVectorSensor(manager)
+
+        Bluetooth.checkBTPermissions(this)
+
+        //Broadcasts when bond state changes (ie:pairing)
+        val filter = IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED)
+        registerReceiver(Bluetooth.mBluetoothCheck, filter)
+
+        //tenta habilitar o bluetooth
+        val enableBTIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+        startActivity(enableBTIntent)
+
+        val btIntent = IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
+        registerReceiver(Bluetooth.mBluetoothEnableCheck, btIntent)
     }
+
+
 
     private fun setUpRotationVectorSensor(manager:SensorManager){
         val rvs = manager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
 
         manager.registerListener(rotationVectorListener(), rvs, SensorManager.SENSOR_DELAY_NORMAL)
+    }
+
+    private fun goLeft(){
+
+    }
+
+    private fun goRight(){
+
     }
 
     private fun rotationVectorListener(): SensorEventListener = object : SensorEventListener {
@@ -59,10 +92,27 @@ class RotationVectorSensorActivity : AppCompatActivity() {
                 orientations[i] = Math.toDegrees(orientations[i].toDouble()).toFloat()
             }
 
+            var rotacao = orientations[2]
+
+            Log.i("VOLANTE", rotacao.toString())
+
+
             when {
-                orientations[2] > 45 -> window.decorView.setBackgroundColor(Color.YELLOW)
-                orientations[2] < -45 -> window.decorView.setBackgroundColor(Color.BLUE)
-                abs(orientations[2]) < 10 -> window.decorView.setBackgroundColor(Color.WHITE)
+                rotacao > -70 && rotacao < 0 -> {
+                    window.decorView.setBackgroundColor(Color.YELLOW)
+                    goRight()
+                }
+
+                rotacao < -110 -> {
+                    window.decorView.setBackgroundColor(Color.BLUE)
+                    goLeft()
+                }
+
+                rotacao < -70 && rotacao > -110 -> window.decorView.setBackgroundColor(Color.WHITE)
+
+                else -> {
+                    window.decorView.setBackgroundColor(Color.BLACK)
+                }
             }
         }
 
