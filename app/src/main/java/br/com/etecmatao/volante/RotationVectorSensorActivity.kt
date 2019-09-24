@@ -1,5 +1,6 @@
 package br.com.etecmatao.volante
 
+import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.content.Context
 import android.graphics.Color
@@ -21,7 +22,6 @@ import android.content.Intent
 class RotationVectorSensorActivity : AppCompatActivity() {
 
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_rotation_vector_sensor)
@@ -31,19 +31,42 @@ class RotationVectorSensorActivity : AppCompatActivity() {
         setUpRotationVectorSensor(manager)
 
         Bluetooth.checkBTPermissions(this)
-
-        //Broadcasts when bond state changes (ie:pairing)
-        val filter = IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED)
-        registerReceiver(Bluetooth.mBluetoothCheck, filter)
-
-        //tenta habilitar o bluetooth
-        val enableBTIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-        startActivity(enableBTIntent)
-
-        val btIntent = IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
-        registerReceiver(Bluetooth.mBluetoothEnableCheck, btIntent)
+        checkBTState(Bluetooth.adapter)
     }
 
+    //Checks that the Android device Bluetooth is available and prompts to be turned on if off
+    private fun checkBTState(adapter: BluetoothAdapter) {
+
+        if (adapter == null) {
+            Log.i(Bluetooth.Tag, "Device does not support bluetooth")
+            return
+        }
+
+        if (!adapter.isEnabled) {
+            val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+            startActivityForResult(enableBtIntent, 1010)
+            return
+        }
+
+        findBTDevices()
+    }
+
+    private fun findBTDevices(){
+        val discoverDevicesIntent = IntentFilter(BluetoothDevice.ACTION_FOUND)
+        registerReceiver(Bluetooth.devicesFoundReceiver, discoverDevicesIntent)
+
+        Bluetooth.adapter.startDiscovery()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == 1010 && resultCode == Activity.RESULT_OK){
+            Log.i(Bluetooth.Tag, "Temos bluetooth habilitado no aparelho")
+
+            findBTDevices()
+        }
+    }
 
 
     private fun setUpRotationVectorSensor(manager:SensorManager){
@@ -53,11 +76,16 @@ class RotationVectorSensorActivity : AppCompatActivity() {
     }
 
     private fun goLeft(){
+        if (Bluetooth.btConnected){
+            Bluetooth.btStream?.write("0")
+        }
 
     }
 
     private fun goRight(){
-
+        if (Bluetooth.btConnected){
+            Bluetooth.btStream?.write("1")
+        }
     }
 
     private fun rotationVectorListener(): SensorEventListener = object : SensorEventListener {
@@ -94,7 +122,7 @@ class RotationVectorSensorActivity : AppCompatActivity() {
 
             var rotacao = orientations[2]
 
-            Log.i("VOLANTE", rotacao.toString())
+//            Log.i("VOLANTE", rotacao.toString())
 
 
             when {
