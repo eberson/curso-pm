@@ -88,7 +88,7 @@ class LoginActivity : AppCompatActivity() {
 
             if (it.state == WorkInfo.State.FAILED){
                 Snackbar.make(
-                    this.window.decorView,
+                    v,
                     it.outputData.getString("msg")!!,
                     Snackbar.LENGTH_LONG
                 ).show()

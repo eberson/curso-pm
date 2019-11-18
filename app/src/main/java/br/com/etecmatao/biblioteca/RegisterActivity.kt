@@ -79,11 +79,25 @@ class RegisterActivity : AppCompatActivity() {
             }
 
             if (it.state == WorkInfo.State.SUCCEEDED || it.state == WorkInfo.State.FAILED){
-                Snackbar.make(
-                    this.window.decorView,
+                val state = it.state
+
+                val snackBar = Snackbar.make(
+                    v,
                     it.outputData.getString("result")!!,
                     Snackbar.LENGTH_LONG
-                ).show()
+                )
+
+                snackBar.addCallback(object : Snackbar.Callback() {
+                    override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+                        super.onDismissed(transientBottomBar, event)
+
+                        if (state == WorkInfo.State.SUCCEEDED){
+                            finish()
+                        }
+                    }
+                })
+
+                snackBar.show()
             }
         }
 

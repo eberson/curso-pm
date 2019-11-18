@@ -4,11 +4,13 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import br.com.etecmatao.biblioteca.model.Livro
 import br.com.etecmatao.biblioteca.model.Usuario
 
-@Database(entities = [(Usuario::class)], version = 1)
+@Database(entities = [(Usuario::class), (Livro::class)], version = 2)
 abstract class BibliotecaDatabase : RoomDatabase() {
     abstract fun usuarioDao(): UsuarioDao
+    abstract fun livroDao(): LivroDao
 
     companion object {
         private var INSTANCE: BibliotecaDatabase? = null

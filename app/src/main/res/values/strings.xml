@@ -13,6 +13,7 @@
     <string name="btn_ok">OK</string>
     <string name="btn_salvar">Salvar</string>
     <string name="msg_user_registered">%1$s, seu usuário foi salvo com sucesso!</string>
+    <string name="msg_books_found">Foram encontrados %1$d livros</string>
     <string name="msg_required_field">Esse campo é obrigatório</string>
     <string name="msg_password_different">As senhas devem ser iguais!</string>
     <string name="msg_invalid_credential">Credenciais Inválidas</string>
